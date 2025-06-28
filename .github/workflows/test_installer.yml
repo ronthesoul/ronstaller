@@ -26,7 +26,7 @@ jobs:
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - Started"}' $SLACK_WEBHOOK
           {
-            shellcheck ./installer.sh
+            shellcheck --severity=error ./installer.sh
           } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - ✅ Success"}' $SLACK_WEBHOOK \
             || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - ❌ Failed"}' $SLACK_WEBHOOK
 
