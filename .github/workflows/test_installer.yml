@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_NUMBER: ${{ github.run_number }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
     steps:
       - name: Checkout
@@ -14,15 +15,35 @@ jobs:
 
       - name: Install dependencies and pull nginx
         run: |
-          sudo docker image pull nginx:latest
-          sudo apt-get update && sudo apt-get install -y \
-            makeself \
-            shellcheck
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Install dependencies and pull nginx - Started"}' $SLACK_WEBHOOK
+          {
+            sudo docker image pull nginx:latest
+            sudo apt-get update && sudo apt-get install -y makeself shellcheck
+          } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Install dependencies and pull nginx - ✅ Success"}' $SLACK_WEBHOOK \
+            || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Install dependencies and pull nginx - ❌ Failed"}' $SLACK_WEBHOOK
 
       - name: Check installer script with ShellCheck
         run: |
-          shellcheck ./installer.sh
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - Started"}' $SLACK_WEBHOOK
+          {
+            shellcheck -x ./installer.sh
+          } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - ✅ Success"}' $SLACK_WEBHOOK \
+            || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - ❌ Failed"}' $SLACK_WEBHOOK
 
       - name: Package the installer
         run: |
-          makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./install.sh
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - Started"}' $SLACK_WEBHOOK
+          {
+            makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./install.sh
+          } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ✅ Success"}' $SLACK_WEBHOOK \
+            || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ❌ Failed"}' $SLACK_WEBHOOK
+
+      - name: Final pipeline result
+        if: ${{ success() }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"🚀 Pipeline completed successfully!"}' $SLACK_WEBHOOK
+
+      - name: Final pipeline failure
+        if: ${{ failure() }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"🔥 Pipeline failed!"}' $SLACK_WEBHOOK
