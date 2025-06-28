@@ -1,0 +1,28 @@
+name: test package and install dependencies
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies and pull nginx
+        run: |
+          sudo docker image pull nginx:latest
+          sudo apt-get update && sudo apt-get install -y \
+            makeself \
+            shellcheck
+
+      - name: Check installer script with ShellCheck
+        run: |
+          shellcheck ./installer.sh
+
+      - name: Package the installer
+        run: |
+          makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./install.sh
