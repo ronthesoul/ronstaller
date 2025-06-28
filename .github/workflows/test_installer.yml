@@ -26,7 +26,7 @@ jobs:
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - Started"}' $SLACK_WEBHOOK
           {
-            shellcheck -x ./installer.sh
+            shellcheck ./installer.sh
           } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - ✅ Success"}' $SLACK_WEBHOOK \
             || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: ShellCheck - ❌ Failed"}' $SLACK_WEBHOOK
 
@@ -38,12 +38,19 @@ jobs:
           } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ✅ Success"}' $SLACK_WEBHOOK \
             || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ❌ Failed"}' $SLACK_WEBHOOK
 
+      - name: Upload installer artifact
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: installer-${{ env.BUILD_NUMBER }}
+          path: installer_${{ env.BUILD_NUMBER }}
+
       - name: Final pipeline result
-        if: ${{ success() }}
+        if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"🚀 Pipeline completed successfully!"}' $SLACK_WEBHOOK
 
       - name: Final pipeline failure
-        if: ${{ failure() }}
+        if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"🔥 Pipeline failed!"}' $SLACK_WEBHOOK
