@@ -35,7 +35,9 @@ git push origin main
 
 ```bash
 gh auth
-gh run download --repo ronthesoul/ronstaller --name installer-$build-number #
+gh run download --repo ronthesoul/ronstaller --name installer-$build-number
+chmod +x installer_$build-number
+./installer_$build-number
 ```
 
 > Change $build-number to the required artifact number for example installer installer-7.
