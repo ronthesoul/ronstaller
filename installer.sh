@@ -15,9 +15,13 @@ ADIR="./application"
 
 main() {
   log "Installer started"
+  if ! check_root; then
+  exit 1
+  fi
   if ! check_docker; then
     install_dependencies
   fi
+
   package_build
   run_container
   log "Installer finished"
@@ -78,6 +82,14 @@ run_container() {
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGFILE"
+}
+
+check_root() {
+  if [[ $EUID != 0 ]]; then
+    log "Please run as root (e.g. with sudo)"
+    return 1
+  fi
+  return 0
 }
 
 main "$@"
