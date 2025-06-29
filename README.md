@@ -22,22 +22,23 @@ cd ronstaller
 
 ---
 
-### 3. Build the Installer
+### 3. Push to repository
 
 ```bash
-makeself --tar-extra "--exclude=.git --exclude=.github" . installer.run "My App Installer" ./install.sh
+git push origin main
 ```
-
-> This creates a self-extracting installer script called `installer.run`.
+> When pushed to repository a workflow will test the changes and make a new artifact.
 
 ---
 
-### 4. Run the Installer
+### 4. download the artifact via CLI
 
 ```bash
-chmod +x installer.run
-./installer.run
+gh auth
+gh run download --repo ronthesoul/ronstaller --name installer-$build-number #
 ```
+
+> Change $build-number to the required artifact number for example installer installer-7.
 
 ---
 
