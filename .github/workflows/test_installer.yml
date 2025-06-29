@@ -34,7 +34,7 @@ jobs:
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - Started"}' $SLACK_WEBHOOK
           {
-            makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./install.sh
+            makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./installer.sh
           } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ✅ Success"}' $SLACK_WEBHOOK \
             || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ❌ Failed"}' $SLACK_WEBHOOK
 
