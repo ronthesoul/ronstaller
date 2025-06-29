@@ -33,10 +33,10 @@ jobs:
       - name: Package the installer
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - Started"}' $SLACK_WEBHOOK
-          {
-            makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./installer.sh
-          } && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ✅ Success"}' $SLACK_WEBHOOK \
-            || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ❌ Failed"}' $SLACK_WEBHOOK
+          cd $GITHUB_WORKSPACE
+          makeself --tar-extra "--exclude=.git --exclude=.github" . installer_${BUILD_NUMBER} "My app parsing" ./installer.sh \
+          && curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ✅ Success"}' $SLACK_WEBHOOK \
+          || curl -X POST -H 'Content-type: application/json' --data '{"text":"Step: Package installer - ❌ Failed"}' $SLACK_WEBHOOK
 
       - name: Upload installer artifact
         if: success()
