@@ -12,16 +12,25 @@ LOGFILE="/var/log/ronstaller.log"
 DDIR="./dependencies"
 ADIR="./application"
 
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGFILE"
-}
 
 main() {
   log "Installer started"
-  install_dependencies
+  if ! check_docker; then
+    install_dependencies
+  fi
   package_build
   run_container
   log "Installer finished"
+}
+
+check_docker() {
+ if command -v docker &> /dev/null; then
+    log "Docker is installed"
+    return 0
+  else
+    log "Docker is NOT installed"
+    return 1
+  fi
 }
 
 install_dependencies() {
@@ -65,6 +74,10 @@ run_container() {
     log "Failed to start nginx container"
     exit 1
   fi
+}
+
+log() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGFILE"
 }
 
 main "$@"
